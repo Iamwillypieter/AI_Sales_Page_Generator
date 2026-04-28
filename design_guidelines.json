@@ -1,0 +1,96 @@
+{
+  "theme": "Light",
+  "archetype": "Archetype 4 (Swiss & High-Contrast)",
+  "design_philosophy": "A confident, opinionated SaaS tool for marketers. The app shell is strict, grid-based, and monochrome with sharp borders (Swiss Brutalist), letting the generated landing pages stand out as the 'art'.",
+  "colors": {
+    "background_primary": "#FFFFFF",
+    "background_secondary": "#F9F9F9",
+    "text_primary": "#0A0A0A",
+    "text_secondary": "#525252",
+    "border_color": "#E5E5E5",
+    "accent_primary": "#002FA7",
+    "accent_hover": "#001B6B",
+    "accent_danger": "#FF3333",
+    "ai_generation_accent": "#002FA7",
+    "success": "#10B981"
+  },
+  "typography": {
+    "heading_font": "Cabinet Grotesk",
+    "body_font": "Satoshi",
+    "monospace_font": "JetBrains Mono",
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight font-black",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight font-bold",
+      "h3": "text-xl sm:text-2xl font-bold",
+      "body": "text-base leading-relaxed",
+      "small_label": "text-xs tracking-[0.2em] uppercase font-bold"
+    }
+  },
+  "spacing_and_layout": {
+    "app_shell_grid": "The 'Control Room' Grid - grid-cols-1 lg:grid-cols-12 gap-6. Dashboard uses a sidebar (col-span-3) and main content (col-span-9).",
+    "container_padding": "p-8 or p-12 for generous breathing room",
+    "card_style": "Flat background (#FFFFFF), 1px solid border (#E5E5E5), rounded-none. On hover: -translate-y-1, shadow-lg, border-black.",
+    "border_radius": "rounded-none"
+  },
+  "components": {
+    "buttons": "Square edges (rounded-none), solid black or accent background, white text. Data-testid mandatory.",
+    "inputs": "Shadcn components heavily customized: 1px solid border, no rounded corners, focus:ring-2 focus:ring-black.",
+    "ai_generator_state": "Retro-Futurism 'Terminal' look for loading states: deep black background, green scanlines, typewriter text effect.",
+    "sidebar": "Flat grey background (#F9F9F9), 1px right border (#E5E5E5).",
+    "live_preview": "Housed inside a bento-grid slot with a distinct browser-mockup header (macOS dots) to differentiate app shell from generated content."
+  },
+  "motion_and_interaction": {
+    "hover_states": "Crisp and immediate. Elements lift (-translate-y-1) and gain a sharp drop shadow.",
+    "page_transitions": "Instant or very fast fade (0.15s ease).",
+    "loading": "Meaningful animations for AI generation, showing steps (Drafting copy -> Assembling sections -> Polishing).",
+    "accessibility": "Always respect prefers-reduced-motion. High contrast focus rings."
+  },
+  "generated_templates_spec": {
+    "modern": {
+      "name": "Modern Glass",
+      "heading_font": "Outfit",
+      "body_font": "Inter",
+      "style": "Soft shadows, max rounded corners (rounded-2xl), subtle gradients, glassmorphism headers."
+    },
+    "bold": {
+      "name": "Brutalist Bold",
+      "heading_font": "Cabinet Grotesk",
+      "body_font": "Satoshi",
+      "style": "High contrast, massive typography, 2px hard borders, harsh shadows (offset solid black shadows)."
+    },
+    "minimal": {
+      "name": "Editorial Minimal",
+      "heading_font": "Cormorant Garamond",
+      "body_font": "Work Sans",
+      "style": "Massive whitespace (py-32), delicate 1px dividers, highly muted color palette."
+    }
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1621743018966-29194999d736?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjB3b3Jrc3BhY2UlMjBkZXNrfGVufDB8fHx8MTc3NzMzOTg0MXww&ixlib=rb-4.1.0&q=85",
+        "description": "Modern workspace desk",
+        "category": "auth_background"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1669310594980-4e46c24724d4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwyfHxtaW5pbWFsaXN0JTIwZ2VvbWV0cmljJTIwc2hhcGVzJTIwM2R8ZW58MHx8fHwxNzc3MzM5ODQxfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract minimalist geometric shape",
+        "category": "empty_state_dashboard"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1668712841504-d392ff984d9d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwZ2VvbWV0cmljJTIwc2hhcGVzJTIwM2R8ZW58MHx8fHwxNzc3MzM5ODQxfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Colorful geometric objects",
+        "category": "preview_placeholder_hero"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Import Cabinet Grotesk and Satoshi from Fontshare CDN in your HTML head.",
+    "Build the dashboard and settings using strict Grid layouts. Do not use generic Shadcn Cards without removing the heavy border-radius and default soft shadows to match the Brutalist aesthetic.",
+    "For the AI Generator UI, use a split-screen or bento grid: Left side is the input form (Product Name, Audience, etc.), Right side is the Live Preview.",
+    "The Live Preview must be an iframe-like container or a clearly bounded div with a 'browser chrome' (e.g., traffic light dots) to isolate the generated template from the app shell.",
+    "Ensure all interactive elements have data-testid attributes (e.g., data-testid='generate-sales-page-btn').",
+    "Use @phosphor-icons/react for a dense, professional look.",
+    "Create the 3 distinct templates inside separate React components that accept props (headline, subheadline, features, etc.). Ensure they match the 'generated_templates_spec' distinct styles."
+  ]
+}
