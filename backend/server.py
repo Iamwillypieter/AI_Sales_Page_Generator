@@ -19,7 +19,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from emergentintegrations.llm.chat.chat import LlmChat, UserMessage
 
 
 # ---------- Setup ----------
@@ -203,18 +203,30 @@ UNIQUE SELLING POINTS:
 
 
 def parse_json_strict(text: str) -> dict:
+    # 1. Bersihkan spasi di awal/akhir
     text = text.strip()
-    if text.startswith("```"):
-        # strip code fences
-        text = text.strip("`")
-        if text.lower().startswith("json"):
-            text = text[4:].strip()
-    # find outermost braces
-    first = text.find("{")
-    last = text.rfind("}")
-    if first != -1 and last != -1:
-        text = text[first : last + 1]
-    return json.loads(text)
+    
+    # 2. Hapus blok ```json ... ``` kalau Gemini nakal ngasih markdown
+    if "```" in text:
+        # Ambil teks yang ada di dalam backticks
+        parts = text.split("```")
+        for part in parts:
+            if "{" in part and "}" in part:
+                text = part
+                if text.lower().startswith("json"):
+                    text = text[4:].strip()
+                break
+
+    # 3. Ambil dari kurung kurawal pertama sampai terakhir (ngilangin teks tambahan)
+    try:
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1:
+            text = text[start:end+1]
+        return json.loads(text)
+    except Exception as e:
+        print(f"DEBUG: Gagal parsing teks: {text}") # Liat di terminal apa isinya
+        raise ValueError(f"AI ngasih format rusak: {str(e)}")
 
 
 async def llm_generate_full(product: ProductInput) -> dict:
@@ -470,20 +482,35 @@ async def on_shutdown():
     client.close()
 
 
+# ---------- Routing & Middleware ----------
+
+# 1. Definisikan root API
 @api.get("/")
 async def root():
     return {"ok": True, "service": "SalesCraft AI"}
 
-
-app.include_router(api)
-
+# 2. Tambahkan Middleware DULU sebelum include router
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    # Kita paksa izinkan localhost agar tidak bentrok dengan credentials
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://192.168.88.33:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# 3. Baru sertakan router-nya
+app.include_router(api)
+
+# 4. Setup Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("salescraft")
+
+# 5. Tambahkan blok running (opsional tapi membantu)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
