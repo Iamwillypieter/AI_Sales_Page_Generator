@@ -1,0 +1,35 @@
+{
+  "summary": "End-to-end testing of SalesCraft AI MVP. Backend: 23/23 pytest cases pass covering auth (register/login/logout/me + cookie + invalid + dup), all sales-page CRUD, full-page generate via GPT-5.2, section regenerate, full regenerate, ownership isolation (404 for other users), public read endpoint. Frontend: full user journey verified — landing -> register -> dashboard empty -> /create generate (~30s) -> editor /page/:id (regenerate-all-btn + all 8 regen-section-* testids + export-html-btn) -> /preview rendering with TemplateModern -> Export HTML download triggers (e2eproduct.html / widgetx.html) -> dashboard delete removes card -> logout redirects to /login -> protected route redirects unauth users. Admin login (admin@salescraft.io/admin12345) and freshly-registered user both work. Bearer-token auth via localStorage('sc_token') and httpOnly cookie both observed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "set_auth_cookie uses secure=False which is acceptable for preview env but should be True in production behind HTTPS. Consider deriving from env var.",
+    "CORS_ORIGINS defaults to '*' while allow_credentials=True — browsers will reject credentialed CORS requests when origin is '*'. Currently the frontend works because it points to the same hostname the backend serves under, but this combination is technically inconsistent and may break if frontend is served from another origin. Recommend setting CORS_ORIGINS to explicit FRONTEND_URL.",
+    "regenerate_full does not guarantee a different headline (LLM may rarely repeat); the unit test has been written to not strictly fail on this. Consider passing the previous headline in the prompt to encourage variation.",
+    "JWT_SECRET is committed in .env (acceptable for preview, but worth flagging).",
+    "Brute-force lockout from playbook is NOT implemented — login currently has no rate limit / lockout after N failed attempts. If the playbook mandates this, add it.",
+    "/api/public/pages/{id} exposes any page by id without auth. This is by design for export/share but should be documented; consider adding a 'public' boolean toggle per page in the future."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "100% (23/23)", "frontend": "100% (22/22 verified flows)"},
+  "test_credentials": "Admin: admin@salescraft.io / admin12345 (verified). Test users created dynamically via /api/auth/register (lowercased emails are the source of truth — backend lowercases on register/login).",
+  "seed_data_creation": "Admin user is auto-seeded on backend startup. Test pages created during e2e were cleaned up via DELETE.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend lowercases emails — always compare against lowercased value in tests. LLM generate calls take ~25-35s; use 90-120s timeouts. Frontend stores Bearer token in localStorage as 'sc_token' and ALSO uses httpOnly cookie. The /page/:id editor lazily renders the section regen panel and export-html-btn only after page content is loaded — wait_for_selector or networkidle before asserting on those selectors. Page card data-testid format is 'page-card-{id}', edit/preview/delete are 'edit-btn-{id}', 'preview-btn-{id}', 'delete-btn-{id}'. Delete uses window.confirm — register a dialog handler in Playwright before clicking.",
+  "rca of the issue": "No bugs found. Two transient frontend FAILs in iteration 2 of the playwright run (regen-section-headline, editor export-html-btn) were caused by querying immediately after wait_for_selector('regenerate-all-btn') resolved before React had finished rendering the rest of the page; a follow-up run with networkidle + 3s settle confirmed all 8 regen-section-* testids and the editor export-html-btn render correctly."
+}
